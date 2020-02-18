@@ -29,11 +29,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/humidity"
+        android:id="@+id/light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
-        android:text="humidity"
+        android:text="light"
         app:layout_constraintBaseline_toBaselineOf="@+id/weather"
         app:layout_constraintStart_toEndOf="@+id/weather" />
 

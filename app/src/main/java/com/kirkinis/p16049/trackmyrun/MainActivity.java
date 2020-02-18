@@ -43,12 +43,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LocationManager locationManager; //reference to the system Location Manager
     SQLiteDatabase db;
     SensorManager sensorManager;
-    Sensor humidity;
+    Sensor light;
     boolean running = false;
     static final int req = 001;
     static final int voice_req = 002;
     static  final int REQ = 003;
-    TextView weather, hum;
+    TextView weather, li;
     double longitude, latitude;
 
     class Weather extends AsyncTask<String, Void, StringBuffer>{ //<Params (url in string), Progress, Result>
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         voiceb = findViewById(R.id.voicecom);
         weather = findViewById(R.id.weather);
-        hum = findViewById(R.id.humidity);
+        li = findViewById(R.id.light);
         voiceb.setOnClickListener(this);
 
         t2s = new Text2Speech(this);
@@ -116,8 +116,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Get an instance of the sensor service, and use that to get an instance of humidity sensor.
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        humidity = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
-        sensorManager.registerListener(this,humidity,SensorManager.SENSOR_DELAY_NORMAL);
+        light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        sensorManager.registerListener(this,light,SensorManager.SENSOR_DELAY_NORMAL);
 
     }
 
@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        hum.setText(String.valueOf((int)event.values[0] * 100) + "%");
+        li.setText(String.valueOf(event.values[0]) + "%");
         sensorManager.unregisterListener(this); // stop listener
     }
 
