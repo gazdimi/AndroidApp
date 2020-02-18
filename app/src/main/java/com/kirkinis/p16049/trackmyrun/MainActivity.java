@@ -23,31 +23,26 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import org.json.JSONObject;
-
-
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, LocationListener
-{
-
-    private Button voiceb;
-
-    private Text2Speech t2s;
-    private LocationManager locman;
-    private SQLiteDatabase db;
-
-    private boolean running = false;
-    static final int req = 001;
-    static final int voice_req = 002;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class MainActivity extends AppCompatActivity implements LocationListener {
 
-    LocationManager locationManager; //reference to the system Location Manager
-    static final int REQ_CODE = 432;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, LocationListener
+{
+
+    private Button voiceb;
+    private Text2Speech t2s;
+    private LocationManager locationManager; //reference to the system Location Manager
+    private SQLiteDatabase db;
+
+    private boolean running = false;
+    static final int req = 001;
+    static final int voice_req = 002;
+
+    //static final int REQ_CODE = 432;
     TextView weather;
     double longitude, latitude;
 
@@ -90,31 +85,27 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         setContentView(R.layout.activity_main);
 
         voiceb = findViewById(R.id.voicecom);
+        weather = findViewById(R.id.weather);
         voiceb.setOnClickListener(this);
 
         t2s = new Text2Speech(this);
 
-        locman = (LocationManager)getSystemService(LOCATION_SERVICE);
-
         db = openOrCreateDatabase("Running",MODE_PRIVATE,null); //anoigoume i dimiourgoume ti basi
         db.execSQL("CREATE TABLE IF NOT EXISTS Locations(latitude TEXT, longitude TEXT, speed TEXT, timestamp TEXT);"); //dimiourgoume ton pinaka an den iparxei
 
-
-
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE); //info about location
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQ_CODE); //case of denying accessing location
-        }else{
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this); //get location updates
+        locationManager = (LocationManager)getSystemService(LOCATION_SERVICE); //info about location
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, req); //case of denying accessing location
         }
+        else{ locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,0,this);}
 
-        weather = findViewById(R.id.weather);
         Weather condition = new Weather();
         try {
             StringBuffer content = condition.execute("https://openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=b6907d289e10d714a6e88b30761fae22").get();
             JSONObject jsonobject = new JSONObject(content.toString());
             weather.setText(jsonobject.getJSONObject("main").getString("temp") + (char) 0x00B0 + "C");
-
+            locationManager.removeUpdates(this);
+            running = false;
         }catch (Exception e){}
 
         this.onLocationChanged(null); //for re-opening app, get current speed (initialize with null)
@@ -129,14 +120,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         else
         { // dimiourgoume ton listener
-            locman.requestLocationUpdates(LocationManager.GPS_PROVIDER,3000,0,this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,3000,0,this);
             running = true;
         }
     }
 
     public void stopRunning()
     {
-        locman.removeUpdates(this); //katastrefoyme ton listener
+        locationManager.removeUpdates(this); //katastrefoyme ton listener
         running = false;
     }
 
@@ -221,6 +212,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 +location.getLongitude() + "','"
                 +speed + "','"
                 +timestamp +"');");
+
+        if (location != null) {
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+        }
     }
 
     @Override
@@ -246,28 +242,5 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         {
             startRunning(); //to kaloume ksana oste na energopoiithei an to dektei o xristis
         }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location != null) {
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
     }
 }
