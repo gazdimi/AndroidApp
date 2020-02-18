@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SQLiteDatabase db;
 
     private boolean running = false;
-
     static final int req = 001;
     static final int voice_req = 002;
 
@@ -51,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         locman = (LocationManager)getSystemService(LOCATION_SERVICE);
 
         db = openOrCreateDatabase("Running",MODE_PRIVATE,null); //anoigoume i dimiourgoume ti basi
-        db.execSQL("CREATE TABLE IF NOT EXISTS Exceedings(latitude TEXT, longitude TEXT, speed TEXT, timestamp TEXT);"); //dimiourgoume ton pinaka an den iparxei
+        db.execSQL("CREATE TABLE IF NOT EXISTS Locations(latitude TEXT, longitude TEXT, speed TEXT, timestamp TEXT);"); //dimiourgoume ton pinaka an den iparxei
 
 
     }
@@ -127,10 +126,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             {
                 if (results.get(0).toUpperCase().contains("START") && running == false)
                 {
+                    db.execSQL("INSERT INTO Locations VALUES " +
+                            "('start','start','0','"+(System.currentTimeMillis()/1000) +"');");
+
                     startRunning();
                 }
                 else if (results.get(0).toUpperCase().contains("STOP") && running == true)
                 {
+                    db.execSQL("INSERT INTO Locations VALUES " +
+                            "('stop','stop','0','"+(System.currentTimeMillis()/1000) +"');");
                     stopRunning();
                 }
             }
@@ -145,7 +149,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Long ts = System.currentTimeMillis()/1000; //dimiourgia timestamp
         String timestamp = ts.toString();
-        db.execSQL("INSERT INTO Exceedings values " +
+
+        db.execSQL("INSERT INTO Locations VALUES " +
                 "('"+location.getLatitude() +"','"
                 +location.getLongitude() + "','"
                 +speed + "','"
