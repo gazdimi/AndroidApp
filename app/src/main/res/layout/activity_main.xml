@@ -10,7 +10,7 @@
         android:id="@+id/weather"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="temperature"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.155"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -27,5 +27,14 @@
         android:text="voice command"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/humidity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:text="humidity"
+        app:layout_constraintBaseline_toBaselineOf="@+id/weather"
+        app:layout_constraintStart_toEndOf="@+id/weather" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

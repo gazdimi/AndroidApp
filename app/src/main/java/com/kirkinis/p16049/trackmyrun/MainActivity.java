@@ -6,8 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -30,20 +35,20 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, LocationListener
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, LocationListener, SensorEventListener
 {
 
-    private Button voiceb;
-    private Text2Speech t2s;
-    private LocationManager locationManager; //reference to the system Location Manager
-    private SQLiteDatabase db;
-
-    private boolean running = false;
+    Button voiceb;
+    Text2Speech t2s;
+    LocationManager locationManager; //reference to the system Location Manager
+    SQLiteDatabase db;
+    SensorManager sensorManager;
+    Sensor humidity;
+    boolean running = false;
     static final int req = 001;
     static final int voice_req = 002;
-
-    //static final int REQ_CODE = 432;
-    TextView weather;
+    static  final int REQ = 003;
+    TextView weather, hum;
     double longitude, latitude;
 
     class Weather extends AsyncTask<String, Void, StringBuffer>{ //<Params (url in string), Progress, Result>
@@ -86,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         voiceb = findViewById(R.id.voicecom);
         weather = findViewById(R.id.weather);
+        hum = findViewById(R.id.humidity);
         voiceb.setOnClickListener(this);
 
         t2s = new Text2Speech(this);
@@ -108,14 +114,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             running = false;
         }catch (Exception e){}
 
+        //Get an instance of the sensor service, and use that to get an instance of humidity sensor.
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        humidity = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+        sensorManager.registerListener(this,humidity,SensorManager.SENSOR_DELAY_NORMAL);
+
     }
 
     public void startRunning()
     {
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED)
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         { // an den iparxoun ta zitame
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, req);
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQ);
         }
         else
         { // dimiourgoume ton listener
@@ -219,27 +229,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
 
     @Override
-    public void onProviderEnabled(String provider) {
-
-    }
+    public void onProviderEnabled(String provider) {}
 
     @Override
-    public void onProviderDisabled(String provider) {
-
-    }
+    public void onProviderDisabled(String provider) {}
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+        if ((grantResults[0] == PackageManager.PERMISSION_GRANTED) && (requestCode == REQ))
         {
-            startRunning(); //to kaloume ksana oste na energopoiithei an to dektei o xristis
+            startRunning(); //recall if accepted
         }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        hum.setText(String.valueOf((int)event.values[0] * 100) + "%");
+        sensorManager.unregisterListener(this); // stop listener
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
