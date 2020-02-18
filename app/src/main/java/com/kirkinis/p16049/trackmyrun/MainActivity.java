@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             running = false;
         }catch (Exception e){}
 
-        this.onLocationChanged(null); //for re-opening app, get current speed (initialize with null)
     }
 
     public void startRunning()
