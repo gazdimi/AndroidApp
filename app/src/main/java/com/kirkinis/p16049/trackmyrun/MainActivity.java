@@ -38,7 +38,7 @@ import javax.net.ssl.HttpsURLConnection;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, LocationListener, SensorEventListener
 {
 
-    Button voiceb;
+    Button voiceb,songlistb;
     Text2Speech t2s;
     LocationManager locationManager; //reference to the system Location Manager
     SQLiteDatabase db;
@@ -89,10 +89,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        voiceb = findViewById(R.id.voicecom);
         weather = findViewById(R.id.weather);
         li = findViewById(R.id.light);
+        voiceb = findViewById(R.id.voicecom);
         voiceb.setOnClickListener(this);
+        songlistb = findViewById(R.id.songlistbut);
+        songlistb.setOnClickListener(this);
+
 
         t2s = new Text2Speech(this);
 
@@ -177,6 +180,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tempintent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
                 tempintent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Start / Stop");
                 startActivityForResult(tempintent,voice_req);
+                break;
+
+            case R.id.songlistbut:
+                Intent intent = new Intent(this,SongList.class);
+                startActivity(intent);
                 break;
         }
     }

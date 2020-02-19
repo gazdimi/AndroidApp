@@ -37,4 +37,13 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/weather"
         app:layout_constraintStart_toEndOf="@+id/weather" />
 
+    <Button
+        android:id="@+id/songlistbut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        tools:layout_editor_absoluteX="182dp"
+        tools:layout_editor_absoluteY="442dp"
+        tools:ignore="MissingConstraints" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
