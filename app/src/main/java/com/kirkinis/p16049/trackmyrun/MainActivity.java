@@ -2,6 +2,7 @@ package com.kirkinis.p16049.trackmyrun;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 return buffer;
 
-            }catch (Exception e){}
+            }catch (Exception e){ showMessage("Error loading weather forecast","Make sure internet connection and gps tracking are available");}
 
             return null;
         }
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             JSONObject jsonobject = new JSONObject(content.toString());
             weather.setText(jsonobject.getJSONObject("main").getString("temp") + (char) 0x00B0 + "C");
             locationManager.removeUpdates(this);
-        }catch (Exception e){}
+        }catch (Exception e){ showMessage("Error loading weather forecast","Sorry for the inconvenience, please try again later.");}
 
         //Get an instance of the sensor service, and use that to get an instance of light sensor
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -253,9 +254,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         li.setText(String.valueOf(Math.round(percent)) + "%");
         sensorManager.unregisterListener(this); // stop listener
     }
-
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
+    public void showMessage(String title, final String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(true).setTitle(title).setMessage(message);
+        builder.show();
     }
 }
