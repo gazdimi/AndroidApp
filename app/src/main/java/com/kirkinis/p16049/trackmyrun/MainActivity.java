@@ -11,6 +11,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -22,21 +24,26 @@ import android.location.LocationManager;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
-import android.telephony.AvailableNetworkInfo;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.util.ArrayList;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -59,8 +66,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     static final int voice_req = 002;
     static  final int REQ = 003;
     TextView weather, li;
-    ConstraintLayout background;
+    ConstraintLayout background; ImageView img;
     double longitude, latitude;
+    String icon;
 
     class Weather extends AsyncTask<String, Void, StringBuffer>{ //<Params (url in string), Progress, Result>
         @Override
@@ -104,12 +112,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         weather = findViewById(R.id.weather);
         li = findViewById(R.id.light);
         background = findViewById(R.id.background);
+        img = findViewById(R.id.sth);
 
         voiceb.setOnClickListener(this);
         t2s = new Text2Speech(this); //class for using TextToSpeech
-
-        db = openOrCreateDatabase("Running",MODE_PRIVATE,null); //open or create db file
-        db.execSQL("CREATE TABLE IF NOT EXISTS Locations(latitude TEXT, longitude TEXT, speed TEXT, timestamp TEXT);"); //create table if not exists
 
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE); //info about location
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
@@ -126,6 +132,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         sensorManager.registerListener(this,light,SensorManager.SENSOR_DELAY_NORMAL);
+
+        db = openOrCreateDatabase("Running",MODE_PRIVATE,null); //open or create db file
+        db.execSQL("CREATE TABLE IF NOT EXISTS Locations(latitude TEXT, longitude TEXT, speed TEXT, timestamp TEXT);"); //create table if not exists
 
     }
 
@@ -238,6 +247,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 StringBuffer content = condition.execute("https://openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=b6907d289e10d714a6e88b30761fae22").get();
                 JSONObject jsonobject = new JSONObject(content.toString());
                 String temperature = jsonobject.getJSONObject("main").getString("temp");
+                JSONArray jsonArray = new JSONArray(jsonobject.getString("weather"));
+                for (int i=0; i< jsonArray.length(); i++) {
+                    JSONObject j = jsonArray.getJSONObject(i);
+                    icon = j.getString("icon");
+                }
+                String url = "http://openweathermap.org/img/wn/"+icon+"@2x.png";
+                RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+                ImageRequest imageRequest = new ImageRequest(url, new Response.Listener<Bitmap>() { //load icon from internet
+                    @Override
+                    public void onResponse(Bitmap response) {
+                        img.setImageBitmap(response);
+                    }
+                }, 0, 0, null, Bitmap.Config.RGB_565,
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(MainActivity.this, "Error loading icon", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                requestQueue.add(imageRequest);
                 color(temperature);
                 weather.setText(temperature + (char) 0x00B0 + "C");
                 if(Double.parseDouble(temperature) < 10.0){
@@ -291,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else if (temp < 11.0){ background.setBackgroundColor(Color.parseColor("#1a5ac0"));
         }else if (temp < 36.0){ background.setBackgroundColor(Color.parseColor("#edcc08"));
         }else { background.setBackgroundColor(Color.parseColor("#ed2608"));}
+
     }
 
     public boolean connected(){ //check for internet connection
