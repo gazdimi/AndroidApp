@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         background = findViewById(R.id.background);
 
         voiceb.setOnClickListener(this);
-        t2s = new Text2Speech(this);
+        t2s = new Text2Speech(this); //class for using TextToSpeech
 
         db = openOrCreateDatabase("Running",MODE_PRIVATE,null); //open or create db file
         db.execSQL("CREATE TABLE IF NOT EXISTS Locations(latitude TEXT, longitude TEXT, speed TEXT, timestamp TEXT);"); //create table if not exists
@@ -240,6 +240,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String temperature = jsonobject.getJSONObject("main").getString("temp");
                 color(temperature);
                 weather.setText(temperature + (char) 0x00B0 + "C");
+                if(Double.parseDouble(temperature) < 10.0){
+                    t2s.speak("The temperature is too cold to go running today");
+                }else { t2s.speak("Start your running workout");}
                 } catch (Exception e) {
                     Toast.makeText(this,"Please try again later", Toast.LENGTH_LONG).show();
                 }
