@@ -92,18 +92,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         voiceb = findViewById(R.id.voicecom);
         weather = findViewById(R.id.weather);
         li = findViewById(R.id.light);
-        voiceb.setOnClickListener(this);
 
+        voiceb.setOnClickListener(this);
         t2s = new Text2Speech(this);
 
-        db = openOrCreateDatabase("Running",MODE_PRIVATE,null); //anoigoume i dimiourgoume ti basi
-        db.execSQL("CREATE TABLE IF NOT EXISTS Locations(latitude TEXT, longitude TEXT, speed TEXT, timestamp TEXT);"); //dimiourgoume ton pinaka an den iparxei
+        db = openOrCreateDatabase("Running",MODE_PRIVATE,null); //open or create db file
+        db.execSQL("CREATE TABLE IF NOT EXISTS Locations(latitude TEXT, longitude TEXT, speed TEXT, timestamp TEXT);"); //create table if not exists
 
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE); //info about location
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, req); //case of denying accessing location
         }
-        else{ locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,0,this);}
+        else{ locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,0,this);} //get location updates
 
         Weather condition = new Weather();
         try {
@@ -111,10 +111,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             JSONObject jsonobject = new JSONObject(content.toString());
             weather.setText(jsonobject.getJSONObject("main").getString("temp") + (char) 0x00B0 + "C");
             locationManager.removeUpdates(this);
-            running = false;
         }catch (Exception e){}
 
-        //Get an instance of the sensor service, and use that to get an instance of humidity sensor.
+        //Get an instance of the sensor service, and use that to get an instance of light sensor
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         sensorManager.registerListener(this,light,SensorManager.SENSOR_DELAY_NORMAL);
@@ -124,11 +123,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void startRunning()
     {
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-        { // an den iparxoun ta zitame
+        { //request location permission if not given
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQ);
         }
         else
-        { // dimiourgoume ton listener
+        { //register location listener for updates
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,3000,0,this);
             running = true;
         }
@@ -136,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void stopRunning()
     {
-        locationManager.removeUpdates(this); //katastrefoyme ton listener
+        locationManager.removeUpdates(this);
         running = false;
     }
 
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item)
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) //for choosing option
     {
         Intent intent;
         switch (item.getItemId())
@@ -213,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         double tempspeed  = location.getSpeed()*3.6; //convert to km/h
         float speed = (float)Math.round(tempspeed * 100) /100;
 
-        Long ts = System.currentTimeMillis()/1000; //dimiourgia timestamp
+        Long ts = System.currentTimeMillis()/1000; //create timestamp
         String timestamp = ts.toString();
 
         db.execSQL("INSERT INTO Locations VALUES " +
@@ -249,7 +248,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        li.setText(String.valueOf(event.values[0]) + "%");
+        float maxvalue = light.getMaximumRange();
+        float percent = (event.values[0] * 100) / maxvalue;
+        li.setText(String.valueOf(Math.round(percent)) + "%");
         sensorManager.unregisterListener(this); // stop listener
     }
 
