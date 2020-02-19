@@ -6,8 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -19,12 +21,14 @@ import android.location.LocationManager;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.speech.RecognizerIntent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import org.json.JSONObject;
@@ -33,6 +37,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
+import com.kirkinis.p16049.trackmyrun.MusicService.MusicBinder;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, LocationListener, SensorEventListener
@@ -44,6 +49,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     SQLiteDatabase db;
     SensorManager sensorManager;
     Sensor light;
+
+    public ArrayList<Song> songList = null;
+    public MusicService musicSrv;
+    private Intent playIntent;
+    public boolean musicBound=false;
+
     boolean running = false;
     static final int req = 001;
     static final int voice_req = 002;
@@ -96,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         songlistb = findViewById(R.id.songlistbut);
         songlistb.setOnClickListener(this);
 
+        songList = new ArrayList<>();
 
         t2s = new Text2Speech(this);
 
@@ -124,6 +136,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    @Override
+    protected void onDestroy() {
+        stopService(playIntent);
+        musicSrv=null;
+        super.onDestroy();
+    }
+
+
     public void startRunning()
     {
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -137,11 +157,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
     public void stopRunning()
     {
         locationManager.removeUpdates(this); //katastrefoyme ton listener
         running = false;
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -149,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getMenuInflater().inflate(R.menu.menu,menu);
         return super.onCreateOptionsMenu(menu);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
@@ -184,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.songlistbut:
                 Intent intent = new Intent(this,SongList.class);
-                startActivity(intent);
+                startActivityForResult(intent,005);
                 break;
         }
     }
@@ -212,6 +235,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     stopRunning();
                 }
             }
+        }
+        else if (requestCode == 005 && resultCode == RESULT_OK)
+        {
+            String selected = data.getStringExtra("selected");
+
+            //SongWrapper wrap = (SongWrapper) data.getSerializableExtra("list");
+            //songList = wrap.getItemDetails();
+
+            ServiceConnection musicConnection = new ServiceConnection(){
+
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+                    //get service
+                    musicSrv = binder.getService();
+                    //pass list
+                    musicSrv.setList(songList);
+                    musicBound = true;
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    musicBound = false;
+                }
+            };
+
+            if(playIntent==null){
+                playIntent = new Intent(this, MusicService.class);
+                bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+                startService(playIntent);
+            }
+
+            musicSrv.setSong(Integer.parseInt(selected));
+            musicSrv.playSong();
         }
     }
 

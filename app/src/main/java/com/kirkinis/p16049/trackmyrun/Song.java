@@ -1,7 +1,10 @@
 package com.kirkinis.p16049.trackmyrun;
 
-public class Song
+import java.io.Serializable;
+
+public class Song implements Serializable
 {
+    private static final long serialVersionUID = 1L;
     private long id;
     private String title;
     private String artist;
