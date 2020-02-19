@@ -4,12 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -18,14 +20,21 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.telephony.AvailableNetworkInfo;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import org.json.JSONObject;
@@ -45,11 +54,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     SQLiteDatabase db;
     SensorManager sensorManager;
     Sensor light;
-    boolean running = false;
+    boolean running = false; boolean start = false;
     static final int req = 001;
     static final int voice_req = 002;
     static  final int REQ = 003;
     TextView weather, li;
+    ConstraintLayout background;
     double longitude, latitude;
 
     class Weather extends AsyncTask<String, Void, StringBuffer>{ //<Params (url in string), Progress, Result>
@@ -78,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 return buffer;
 
-            }catch (Exception e){ showMessage("Error loading weather forecast","Make sure internet connection and gps tracking are available");}
+            }catch (Exception e){ showMessage("Error loading weather forecast","Sorry for the inconvenience, please try again later.");}
 
             return null;
         }
@@ -93,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         voiceb = findViewById(R.id.voicecom);
         weather = findViewById(R.id.weather);
         li = findViewById(R.id.light);
+        background = findViewById(R.id.background);
 
         voiceb.setOnClickListener(this);
         t2s = new Text2Speech(this);
@@ -104,15 +115,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, req); //case of denying accessing location
         }
-        else{ locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,0,this);} //get location updates
-
-        Weather condition = new Weather();
-        try {
-            StringBuffer content = condition.execute("https://openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&appid=b6907d289e10d714a6e88b30761fae22").get();
-            JSONObject jsonobject = new JSONObject(content.toString());
-            weather.setText(jsonobject.getJSONObject("main").getString("temp") + (char) 0x00B0 + "C");
-            locationManager.removeUpdates(this);
-        }catch (Exception e){ showMessage("Error loading weather forecast","Sorry for the inconvenience, please try again later.");}
+        else{
+            if (connected() && locationManager.isProviderEnabled( LocationManager.GPS_PROVIDER )) { //check for internet connection and gps enabled
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, this); //get location updates
+                start = true; //retrieve weather conditions on activity start
+            }else { showMessage("Error loading weather forecast", "Make sure internet connection and GPS tracking system are available and restart the application.");}
+        }
 
         //Get an instance of the sensor service, and use that to get an instance of light sensor
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -222,9 +230,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 +speed + "','"
                 +timestamp +"');");
 
-        if (location != null) {
+        if (location != null && start) {
             longitude = location.getLongitude();
             latitude = location.getLatitude();
+            Weather condition = new Weather();
+            try {
+                StringBuffer content = condition.execute("https://openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=b6907d289e10d714a6e88b30761fae22").get();
+                JSONObject jsonobject = new JSONObject(content.toString());
+                String temperature = jsonobject.getJSONObject("main").getString("temp");
+                color(temperature);
+                weather.setText(temperature + (char) 0x00B0 + "C");
+                } catch (Exception e) {
+                    Toast.makeText(this,"Please try again later", Toast.LENGTH_LONG).show();
+                }
+            locationManager.removeUpdates(this);
+            start = false;
         }
     }
 
@@ -241,8 +261,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if ((grantResults[0] == PackageManager.PERMISSION_GRANTED) && (requestCode == REQ))
-        {
+        if ((grantResults[0] == PackageManager.PERMISSION_GRANTED) && (requestCode == REQ)) {
             startRunning(); //recall if accepted
         }
     }
@@ -261,5 +280,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true).setTitle(title).setMessage(message);
         builder.show();
+    }
+
+    public void color(String temperature){
+        double temp = Double.parseDouble(temperature);
+        if(temp < 0.0){ background.setBackgroundColor(Color.parseColor("#f9fdfe"));
+        }else if (temp < 11.0){ background.setBackgroundColor(Color.parseColor("#1a5ac0"));
+        }else if (temp < 36.0){ background.setBackgroundColor(Color.parseColor("#edcc08"));
+        }else { background.setBackgroundColor(Color.parseColor("#ed2608"));}
+    }
+
+    public boolean connected(){ //check for internet connection
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network network = connectivityManager.getActiveNetwork();
+        return (network != null);
     }
 }
