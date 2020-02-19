@@ -22,19 +22,29 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.speech.RecognizerIntent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.net.URI;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -55,7 +65,10 @@ import javax.net.ssl.HttpsURLConnection;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, LocationListener, SensorEventListener
 {
 
-    Button voiceb;
+    MediaPlayer mp;
+
+    SeekBar duration;
+    Button voiceb, musicb, selectsong;
     Text2Speech t2s;
     LocationManager locationManager; //reference to the system Location Manager
     SQLiteDatabase db;
@@ -65,8 +78,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     static final int req = 001;
     static final int voice_req = 002;
     static  final int REQ = 003;
-    TextView weather, li;
     ConstraintLayout background; ImageView img;
+    static  final int READ_REQUEST_CODE = 004;
+    TextView weather, li, songtitle;
     double longitude, latitude;
     String icon;
 
@@ -108,12 +122,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        selectsong = findViewById(R.id.selectsong);
+        songtitle = findViewById(R.id.songTitle);
+        duration = findViewById(R.id.songduration);
+        musicb = findViewById(R.id.musicbut);
         voiceb = findViewById(R.id.voicecom);
         weather = findViewById(R.id.weather);
         li = findViewById(R.id.light);
         background = findViewById(R.id.background);
         img = findViewById(R.id.sth);
 
+        selectsong.setOnClickListener(this);
+        musicb.setOnClickListener(this);
         voiceb.setOnClickListener(this);
         t2s = new Text2Speech(this); //class for using TextToSpeech
 
@@ -195,12 +215,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tempintent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Start / Stop");
                 startActivityForResult(tempintent,voice_req);
                 break;
+            case R.id.selectsong:
+                Intent intent;
+                intent = new Intent();
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.setType("audio/mpeg");
+                startActivityForResult(Intent.createChooser(intent,"audio file"), READ_REQUEST_CODE);
+                break;
+            case R.id.musicbut:
+                if (!mp.isPlaying())
+                {
+                    mp.start();
+                    v.setBackgroundResource(R.drawable.music_pause_button);
+                }
+                else
+                {
+                    mp.pause();
+                    v.setBackgroundResource(R.drawable.music_play_button);
+                }
+                break;
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == voice_req && resultCode == RESULT_OK)
         {
@@ -222,7 +260,74 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         }
+        else if (requestCode == READ_REQUEST_CODE && resultCode == RESULT_OK)
+        {
+            if (mp != null)
+            {
+                mp.stop();
+            }
+            Uri uri = data.getData();
+            mp = MediaPlayer.create(this, uri);
+            mp.setLooping(true);
+            mp.seekTo(0);
+            mp.setVolume(0.5f,0.5f);
+
+            mp.start();
+            musicb.setBackgroundResource(R.drawable.music_pause_button);
+
+            String[] s = uri.toString().split("/");
+            songtitle.setText(s[s.length-1]);
+
+            duration.setMax(mp.getDuration());
+            duration.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    mp.seekTo(progress);
+                    duration.setProgress(progress);
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+
+            new Thread(new Runnable() {
+                @Override
+                public void run()
+                {
+                    while(mp != null)
+                    {
+                        try
+                        {
+                            Message msg = new Message();
+                            msg.what = mp.getCurrentPosition();
+                            handler.sendMessage(msg);
+                            Thread.sleep(1000);
+                        }
+                        catch (Exception e){}
+                    }
+                }
+            });
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
+
+    private Handler handler = new Handler()
+    {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            int currentposition = msg.what;
+            duration.setProgress(currentposition);
+            super.handleMessage(msg);
+        }
+    };
 
     @Override
     public void onLocationChanged(Location location)
