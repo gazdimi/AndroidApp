@@ -18,6 +18,6 @@
     <string-array name="spinner_options">
         <item>Εβδομαδιαία πρόοδος</item>
         <item>Ποσοστό εξέλιξης</item>
-        <item>Εμφάνιση πολυσύχναστων σημείων τοποθεσίας</item>
+        <item>Πολυσύχναστα σημεία τοποθεσίας</item>
     </string-array>
 </resources>
