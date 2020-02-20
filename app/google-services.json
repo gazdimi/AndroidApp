@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "130978891670",
+    "firebase_url": "https://trackmyrun-29865.firebaseio.com",
+    "project_id": "trackmyrun-29865",
+    "storage_bucket": "trackmyrun-29865.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:130978891670:android:766e54d033dee28166bfb7",
+        "android_client_info": {
+          "package_name": "com.kirkinis.p16049.trackmyrun"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "130978891670-m008uno92vcel600gommoue00rbgnnep.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kirkinis.p16049.trackmyrun",
+            "certificate_hash": "70bb5ad51a8ad1296e4a3233f33edba40d4cc1c7"
+          }
+        },
+        {
+          "client_id": "130978891670-il664d6gms218ors9fl188d4ku54gnbq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLafjIZDXrrU4vfvSCTAKsfWSwch-Q8d0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "130978891670-il664d6gms218ors9fl188d4ku54gnbq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

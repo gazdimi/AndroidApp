@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,6 +35,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,6 +53,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -73,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Text2Speech t2s;
     LocationManager locationManager; //reference to the system Location Manager
     SQLiteDatabase db;
+    SharedPreferences shpref;
     SensorManager sensorManager;
     Sensor light;
     boolean running = false; boolean start = false;
@@ -83,7 +91,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     static  final int READ_REQUEST_CODE = 004;
     TextView weather, li, songtitle;
     double longitude, latitude;
-    String icon;
+    String icon, userid;
+
+    FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    DatabaseReference dbref;
 
     class Weather extends AsyncTask<String, Void, StringBuffer>{ //<Params (url in string), Progress, Result>
         @Override
@@ -122,6 +133,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        shpref= PreferenceManager.getDefaultSharedPreferences(this);
+        userid = shpref.getString("userid", "0");
+        if (userid == "0")
+        {
+            Long ts = System.currentTimeMillis(); //create timestamp
+            String timestamp = ts.toString();
+
+            SharedPreferences.Editor editor = shpref.edit();
+            editor.putString("userid",timestamp);
+            editor.commit();
+            userid = shpref.getString("userid", "0");
+        }
+
+        dbref = fbdb.getReference(userid);
+        dbref.setValue("hello");
+//        dbref.addListenerForSingleValueEvent(new ValueEventListener()
+//        {
+//        @Override
+//        public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+//        {
+//            if (dataSnapshot.hasChild(userid))
+//            {
+//                dbref = fbdb.getReference(userid);
+//            }
+//            else
+//            {
+//                dbref =
+//            }
+//        }
+//
+//        @Override
+//        public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//        }
+//    });
 
         selectsong = findViewById(R.id.selectsong);
         songtitle = findViewById(R.id.songTitle);

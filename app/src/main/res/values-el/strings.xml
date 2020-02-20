@@ -5,6 +5,8 @@
     <string name="temperature">Θερμοκρασία</string>
     <string name="title">Τίτλος</string>
     <string name="title_activity_maps">Χάρτης</string>
-    <string name="voice_command">Φωνητική εντολή</string>
     <string name="statistics">Στατιστικά</string>
+    <string name="error_title">Πρόβλημα στην φόρτωση πρόβλεψης καιρού</string>
+    <string name="message_error">Συγνώμη για την ενόχληση, παρακαλώ προσπαθήστε πάλι αργότερα</string>
+    <string name="message_error_2">Σιγουρευτείτε ότι η σύνδεση στο διαδίκτυο και το GPS είναι ενεργά και επανεκκινήστε την εφαρμογή</string>
 </resources>
