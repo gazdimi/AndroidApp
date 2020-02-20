@@ -16,8 +16,7 @@
     <string name="dialog_title">%1$s running\n</string>
     <string name="dialog_message">Are you sure, you want to %1$s?</string>
     <string-array name="spinner_options">
-        <item>Weekly progress</item>
-        <item>Progress rate</item>
+        <item>Statistics</item>
         <item>Most visited locations</item>
     </string-array>
     <string name="wait_for_gps">Please wait for the GPS to track you</string>
