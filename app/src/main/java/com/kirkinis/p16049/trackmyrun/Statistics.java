@@ -76,48 +76,47 @@ public class Statistics extends AppCompatActivity implements
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-        Object number = adapterView.getSelectedItemId(); //get id of selected item.getItemAtPosition(pos);
-//        switch (number){
-//            case 0:
-//
-//                break;
-//            case 1:
-//                break;
-//            case 2:
-//                break;
-//        }
-
-        mmap.clear();
-        dbref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                DataSnapshot lastchild = dataSnapshot;
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
-                {
-                    for(int i = 0; i< postSnapshot.getChildrenCount(); i++)
+        switch (pos){
+            case 0:
+                mapv.setVisibility(View.INVISIBLE);
+                break;
+            case 1:
+                mapv.setVisibility(View.VISIBLE);
+                mmap.clear();
+                dbref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
                     {
-                        String lat = postSnapshot.child(String.valueOf(i)).child("0").getValue().toString();
-                        String lon = postSnapshot.child(String.valueOf(i)).child("1").getValue().toString();
-                        String spe = postSnapshot.child(String.valueOf(i)).child("2").getValue().toString();
-                        String tim = postSnapshot.child(String.valueOf(i)).child("3").getValue().toString();
+                        DataSnapshot lastchild = dataSnapshot;
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
+                        {
+                            for(int i = 0; i< postSnapshot.getChildrenCount(); i++)
+                            {
+                                String lat = postSnapshot.child(String.valueOf(i)).child("0").getValue().toString();
+                                String lon = postSnapshot.child(String.valueOf(i)).child("1").getValue().toString();
+                                String spe = postSnapshot.child(String.valueOf(i)).child("2").getValue().toString();
+                                String tim = postSnapshot.child(String.valueOf(i)).child("3").getValue().toString();
 
-                        Timestamp timestamp = new Timestamp(Long.parseLong(tim)*1000);
+                                Timestamp timestamp = new Timestamp(Long.parseLong(tim)*1000);
 
-                        LatLng loc = new LatLng(Double.parseDouble(lat),
-                                Double.parseDouble(lon));
-                        markop.position(loc);
-                        markop.title(timestamp+"("+spe+"m/s)");
-                        mmap.addMarker(markop);
+                                LatLng loc = new LatLng(Double.parseDouble(lat),
+                                        Double.parseDouble(lon));
+                                markop.position(loc);
+                                markop.title(timestamp+"("+spe+"m/s)");
+                                mmap.addMarker(markop);
+                            }
+                        }
                     }
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Handle possible errors.
-            }
-        });
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        // Handle possible errors.
+                    }
+                });
+                break;
+        }
+
+
     }
 
     @Override
