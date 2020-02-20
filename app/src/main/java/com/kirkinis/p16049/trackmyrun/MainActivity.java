@@ -7,12 +7,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -75,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 {
 
     MediaPlayer mp;
-
+    Network network;
     SeekBar duration;
     Button voiceb, musicb, selectsong;
     Text2Speech t2s;
@@ -93,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView weather, li, songtitle;
     double longitude, latitude;
     String icon, userid;
+    Resources res;
 
     FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     DatabaseReference dbref;
@@ -185,6 +189,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         musicb.setOnClickListener(this);
         voiceb.setOnClickListener(this);
         t2s = new Text2Speech(this); //class for using TextToSpeech
+        res = getResources();
 
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE); //info about location
         getWeatherForecast();
@@ -210,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         { //register location listener for updates
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,3000,0,this);
             running = true;
-            voiceb.setBackgroundResource(R.drawable.ic_action_name);
+
         }
     }
 
@@ -218,7 +223,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         locationManager.removeUpdates(this);
         running = false;
-        voiceb.setBackgroundResource(R.drawable.ic_action_standing);
         updateFirebase();
     }
 
@@ -311,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tempintent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
                 tempintent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
                 tempintent.putExtra(RecognizerIntent.EXTRA_PROMPT,R.string.recognizer);
-                startActivityForResult(tempintent,voice_req);
+                startActivityForResult(tempintent,voice_req); //get result
                 break;
             case R.id.selectsong:
                 Intent intent;
@@ -337,26 +341,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == voice_req && resultCode == RESULT_OK)
         {
-            ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            if (results != null)
-            {
-                if (results.get(0).toUpperCase().contains("START") && running == false)
+            try{ //list of results from speech recognition, ordered in descending
+                final ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                if (results != null)
                 {
-                    db.execSQL("INSERT INTO Locations VALUES " +
-                            "('start','start','0','"+(System.currentTimeMillis()/1000) +"');");
+                    StringBuffer b = new StringBuffer();
+                    b.append(results.get(0)); //add 1st element with best score to string buffer
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setCancelable(true).setTitle(res.getString(R.string.dialog_title,b)).setMessage(res.getString(R.string.dialog_message,b));
+                    builder.setPositiveButton("yes", new DialogInterface.OnClickListener() { //DialogInterface using as anonymous interface, for doing something when yes/no option has been clicked on the dialog
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (results.get(0).toUpperCase().contains("START") && running == false)
+                            {
+                                db.execSQL("INSERT INTO Locations VALUES " +
+                                        "('start','start','0','"+(System.currentTimeMillis()/1000) +"');");
+                                voiceb.setBackgroundResource(R.drawable.ic_action_name);
+                                startRunning();
+                            }
+                            else if (results.get(0).toUpperCase().contains("STOP") && running == true)
+                            {
+                                db.execSQL("INSERT INTO Locations VALUES " +
+                                        "('stop','stop','0','"+(System.currentTimeMillis()/1000) +"');");
+                                voiceb.setBackgroundResource(R.drawable.ic_action_standing);
+                                stopRunning();
+                            }
+                        }
+                    });
+                    builder.setNegativeButton("no",new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    builder.show();
 
-                    startRunning();
                 }
-                else if (results.get(0).toUpperCase().contains("STOP") && running == true)
-                {
-                    db.execSQL("INSERT INTO Locations VALUES " +
-                            "('stop','stop','0','"+(System.currentTimeMillis()/1000) +"');");
-                    stopRunning();
-                }
-            }
+            }catch (Exception e){Toast.makeText(MainActivity.this, R.string.error_toast, Toast.LENGTH_LONG).show();}
+
         }
         else if (requestCode == READ_REQUEST_CODE && resultCode == RESULT_OK)
         {
@@ -413,8 +438,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });
         }
-
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private Handler handler = new Handler()
@@ -466,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(MainActivity.this, "Error loading icon", Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this, R.string.error_icon, Toast.LENGTH_LONG).show();
                             }
                         });
                 requestQueue.add(imageRequest);
@@ -476,7 +499,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     t2s.speak("The temperature is too cold to go running today");
                 }else { t2s.speak("Start your running workout");}
                 } catch (Exception e) {
-                    Toast.makeText(this,"Please try again later", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,R.string.toast, Toast.LENGTH_LONG).show();
                 }
             locationManager.removeUpdates(this);
             start = false;
@@ -485,10 +508,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {}
-
     @Override
     public void onProviderEnabled(String provider) {}
-
     @Override
     public void onProviderDisabled(String provider) {}
 
@@ -524,16 +545,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void color(String temperature){
         double temp = Double.parseDouble(temperature);
-        if(temp < 0.0){ background.setBackgroundColor(Color.parseColor("#f9fdfe"));
-        }else if (temp < 11.0){ background.setBackgroundColor(Color.parseColor("#1a5ac0"));
-        }else if (temp < 36.0){ background.setBackgroundColor(Color.parseColor("#edcc08"));
-        }else { background.setBackgroundColor(Color.parseColor("#ed2608"));}
+        if(temp < 0.0){ background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_zero,null));
+        }else if (temp < 11.0){ background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_eleven,null));
+        }else if (temp < 36.0){ background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_thirty_six,null));
+        }else { background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.hot,null));}
 
     }
-
     public boolean connected(){ //check for internet connection
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        Network network = connectivityManager.getActiveNetwork();
+        if(connectivityManager!=null){
+            network = connectivityManager.getActiveNetwork();
+        }
         return (network != null);
     }
 }

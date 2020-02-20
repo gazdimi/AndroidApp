@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="light">Φωτεινότητα:</string>
-    <string name="select_song" >Επιλογή τραγουδιού</string>
+    <string name="select_song" >Επιλογή\nτραγουδιού</string>
     <string name="temperature">Θερμοκρασία</string>
     <string name="title">Τίτλος</string>
+    <string name="recognizer">Έναρξη / Λήξη</string>
     <string name="title_activity_maps">Χάρτης</string>
     <string name="statistics">Στατιστικά</string>
-    <string name="error_title">Πρόβλημα στην φόρτωση πρόβλεψης καιρού</string>
-    <string name="message_error">Συγνώμη για την ενόχληση, παρακαλώ προσπαθήστε πάλι αργότερα</string>
-    <string name="message_error_2">Σιγουρευτείτε ότι η σύνδεση στο διαδίκτυο και το GPS είναι ενεργά και επανεκκινήστε την εφαρμογή</string>
+    <string name="error_title">Σφάλμα κατά την φόρτωση του καιρού</string>
+    <string name="message_error">Λυπούμαστε για την ταλαιπωρία, δοκιμάστε ξανά αργότερα.</string>
+    <string name="message_error_2">Βεβαιωθείτε ότι η σύνδεση στο διαδίκτυο και το σύστημα παρακολούθησης GPS είναι διαθέσιμα και προχωρήστε σε επανεκκίνηση της εφαρμογής.</string>
+    <string name="error_icon">Σφάλμα κατά τη φόρτωση εικονιδίου καιρού</string>
+    <string name="toast">Παρακαλώ προσπαθήστε ξανά αργότερα</string>
+    <string name="error_toast">Σφάλμα κατά την είσοδο φωνητικής εντολής</string>
+    <string name="dialog_title">%1$s running\n</string>
+    <string name="dialog_message">Are you sure, you want to %1$s?</string>
 </resources>
