@@ -15,4 +15,5 @@
     <string name="error_toast">Σφάλμα κατά την είσοδο φωνητικής εντολής</string>
     <string name="dialog_title">%1$s running\n</string>
     <string name="dialog_message">Are you sure, you want to %1$s?</string>
+    <string name="wait_for_gps">Παρακαλώ περιμέντε να σας εντοπίσει το GPS</string>
 </resources>

@@ -104,21 +104,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 routeopt.add(new LatLng(Double.parseDouble(cursor.getString(0)),
                         Double.parseDouble(cursor.getString(1))));
             }
+            mMap.addPolyline(routeopt);
+
         }
         else //we retrieve from firebase
         {
 
-            Query lastQuery = dbref.orderByKey().limitToLast(1);
-            lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            //Query lastQuery = dbref.orderByKey().limitToLast(1);
+            dbref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot)
                 {
-                    for(int i = 0; i< dataSnapshot.getChildrenCount(); i++)
+                    DataSnapshot lastchild = dataSnapshot;
+                    long num = dataSnapshot.getChildrenCount();
+                    int j=0;
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
                     {
-                        String lat = dataSnapshot.child(String.valueOf(i)).child("0").getValue().toString();
-                        String lon = dataSnapshot.child(String.valueOf(i)).child("1").getValue().toString();
-                        String spe = dataSnapshot.child(String.valueOf(i)).child("2").getValue().toString();
-                        String tim = dataSnapshot.child(String.valueOf(i)).child("3").getValue().toString();
+                        j++;
+                        if (j==num)
+                        {
+                            lastchild = postSnapshot;
+                        }
+                    }
+
+                    for(int i = 0; i< lastchild.getChildrenCount(); i++)
+                    {
+                        String lat = lastchild.child(String.valueOf(i)).child("0").getValue().toString();
+                        String lon = lastchild.child(String.valueOf(i)).child("1").getValue().toString();
+                        String spe = lastchild.child(String.valueOf(i)).child("2").getValue().toString();
+                        String tim = lastchild.child(String.valueOf(i)).child("3").getValue().toString();
 
                         Timestamp timestamp = new Timestamp(Long.parseLong(tim)*1000);
 
@@ -130,6 +144,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         routeopt.add(new LatLng(Double.parseDouble(lat),
                                 Double.parseDouble(lon)));
+                        mMap.addPolyline(routeopt);
+
                     }
                 }
 
@@ -139,7 +155,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             });
         }
-        mMap.addPolyline(routeopt);
     }
 
 
