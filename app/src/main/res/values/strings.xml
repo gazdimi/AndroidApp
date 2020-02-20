@@ -5,6 +5,9 @@
     <string name="temperature">temperature</string>
     <string name="title">Title</string>
     <string name="select_song">Select song</string>
-    <string name="voice_command">Voice command</string>
+    <string name="recognizer">Start / Stop</string>
+    <string name="error_title">Error loading weather forecast</string>
+    <string name="message_error">Sorry for the inconvenience, please try again later.</string>
+    <string name="message_error_2">Make sure internet connection and GPS tracking system are available and restart the application.</string>
     <string name="statistics">Statistics</string>
 </resources>

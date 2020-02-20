@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Context;
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 return buffer;
 
-            }catch (Exception e){ showMessage("Error loading weather forecast","Sorry for the inconvenience, please try again later.");}
+            }catch (Exception e){ showMessage(R.string.error_title,R.string.message_error);}
 
             return null;
         }
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (connected() && locationManager.isProviderEnabled( LocationManager.GPS_PROVIDER )) { //check for internet connection and gps enabled
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, this); //get location updates
                 start = true; //retrieve weather conditions on activity start
-            }else { showMessage("Error loading weather forecast", "Make sure internet connection and GPS tracking system are available and restart the application.");}
+            }else { showMessage(R.string.error_title, R.string.message_error_2);}
         }
 
         //Get an instance of the sensor service, and use that to get an instance of light sensor
@@ -168,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         { //register location listener for updates
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,3000,0,this);
             running = true;
+            voiceb.setBackgroundResource(R.drawable.ic_action_name);
         }
     }
 
@@ -175,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         locationManager.removeUpdates(this);
         running = false;
+        voiceb.setBackgroundResource(R.drawable.ic_action_standing);
     }
 
     @Override
@@ -208,11 +211,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         switch (v.getId())
         {
-            case R.id.voicecom:
+            case R.id.voicecom: //start or stop button for running
                 Intent tempintent;
                 tempintent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
                 tempintent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                tempintent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Start / Stop");
+                tempintent.putExtra(RecognizerIntent.EXTRA_PROMPT,R.string.recognizer);
                 startActivityForResult(tempintent,voice_req);
                 break;
             case R.id.selectsong:
@@ -413,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
-    public void showMessage(String title, final String message){
+    public void showMessage(int title, final int message){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true).setTitle(title).setMessage(message);
         builder.show();
