@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="light">Φωτεινότητα:</string>
+    <string name="select_song" >Επιλογή τραγουδιού</string>
+    <string name="temperature">Θερμοκρασία</string>
+    <string name="title">Τίτλος</string>
+    <string name="title_activity_maps">Χάρτης</string>
+    <string name="voice_command">Φωνητική εντολή</string>
+    <string name="statistics">Στατιστικά</string>
+</resources>
