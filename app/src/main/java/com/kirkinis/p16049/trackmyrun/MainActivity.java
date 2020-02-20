@@ -6,7 +6,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import android.Manifest;
@@ -18,8 +17,6 @@ import android.database.Cursor;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -28,12 +25,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.content.pm.PackageManager;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -50,27 +44,20 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.net.URI;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-
 import javax.net.ssl.HttpsURLConnection;
 
 
@@ -80,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MediaPlayer mp;
     Network network;
     SeekBar duration;
+    TextView weather, li, songtitle;
     Button voiceb, musicb, selectsong;
     Text2Speech t2s;
     LocationManager locationManager; //reference to the system Location Manager
@@ -87,13 +75,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     SharedPreferences shpref;
     SensorManager sensorManager;
     Sensor light;
-    boolean running = false; boolean start = false;
+    ConstraintLayout background;
+    ImageView img;
+    boolean running = false, start = false;
     static final int req = 001;
     static final int voice_req = 002;
-    static  final int REQ = 003;
-    ConstraintLayout background; ImageView img;
-    static  final int READ_REQUEST_CODE = 004;
-    TextView weather, li, songtitle;
+    static final int REQ = 003;
+    static final int READ_REQUEST_CODE = 004;
     double longitude, latitude;
     String icon, userid;
     Resources res;
@@ -207,26 +195,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void updateFirebase()
     {
+        //get all starting points
         Cursor cursorstart = db.rawQuery("SELECT timestamp FROM Locations " +
                 "WHERE latitude == 'start' " +
                 "ORDER BY timestamp;",null);
 
 
+        //get all finishing points
         Cursor cursorstop = db.rawQuery("SELECT timestamp FROM Locations " +
                 "WHERE latitude == 'stop' " +
                 "ORDER BY timestamp;",null);
 
 
+        //if there are any routes
         while (cursorstart.moveToNext() && cursorstop.moveToNext())
         {
             String starttime = cursorstart.getString(0);
             String stoptime = cursorstop.getString(0);
 
+            //get all points inside the selected route
             Cursor cursor = db.rawQuery("SELECT * FROM Locations " +
                     "WHERE timestamp > '"+starttime+"' AND timestamp < '"+stoptime+"'", null);
 
-            DatabaseReference tempdbref = dbref.child(starttime+"-"+stoptime);
+            DatabaseReference tempdbref = dbref.child(starttime+"-"+stoptime); //create node inside user for current route
 
+            //add the point data inside an arraylist
             ArrayList<ArrayList<String>> data = new ArrayList<>();
             while (cursor.moveToNext())
             {
@@ -238,11 +231,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 data.add(s);
             }
 
-            tempdbref.setValue(data);
-            dbref.getParent();
+            tempdbref.setValue(data); //upload data inside route firebase child
+            dbref.getParent(); //go back to user node
 
         }
-
+        //delete data fro sqlite since they are uploaded in firebase
         db.execSQL("DELETE FROM Locations;");
     }
 
@@ -337,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public void onClick(DialogInterface dialog, int which) {
                             if (results.get(0).toUpperCase().contains("START") && running == false)
                             {
-                                if (start)
+                                if (start) //if gps is already active to get weather forecast
                                 {
                                     Toast.makeText(MainActivity.this, R.string.wait_for_gps, Toast.LENGTH_LONG).show();
                                 }

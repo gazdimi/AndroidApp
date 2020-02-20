@@ -1,16 +1,17 @@
 package com.kirkinis.p16049.trackmyrun;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.Manifest;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -22,19 +23,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-
-import java.sql.Date;
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 {
 
     String userid;
+    static final int req = 007;
 
     private SQLiteDatabase db;
     private GoogleMap mMap;
@@ -63,7 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         shpref= PreferenceManager.getDefaultSharedPreferences(this);
         userid = shpref.getString("userid", "0");
-        dbref = fbdb.getReference(userid);
+        dbref = fbdb.getReference(userid); //get firebase reference for current user child
     }
 
     public void loadLastRoute()
@@ -114,6 +110,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot)
                 {
+                    //we keep go through the children (routes) to find the last
                     DataSnapshot lastchild = dataSnapshot;
                     long num = dataSnapshot.getChildrenCount();
                     int j=0;
@@ -126,6 +123,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     }
 
+                    //in the last child(route), we retrieve the data from every point
                     for(int i = 0; i< lastchild.getChildrenCount(); i++)
                     {
                         String lat = lastchild.child(String.valueOf(i)).child("0").getValue().toString();
@@ -161,8 +159,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.setMyLocationEnabled(true);
+        //check if we have permissions, if not we ask them
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, req);
+        }
+        else
+        {
+            mMap.setMyLocationEnabled(true);
+        }
         
         loadLastRoute();
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if ((grantResults[0] == PackageManager.PERMISSION_GRANTED) && (requestCode == req))
+        {
+            mMap.setMyLocationEnabled(true);
+        }
     }
 }

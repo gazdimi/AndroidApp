@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -86,6 +85,7 @@ public class Statistics extends AppCompatActivity implements
 
     public void getDataFromDatabase()
     {
+        //add listener for once
         dbref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
@@ -95,9 +95,9 @@ public class Statistics extends AppCompatActivity implements
                 int locnum = 0;
                 int runnum = 0;
                 DataSnapshot lastchild = dataSnapshot;
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) //get every child(rute)
                 {
-                    for(int i = 0; i< postSnapshot.getChildrenCount(); i++)
+                    for(int i = 0; i< postSnapshot.getChildrenCount(); i++) //get everypoint of current route
                     {
                         String lat = postSnapshot.child(String.valueOf(i)).child("0").getValue().toString();
                         String lon = postSnapshot.child(String.valueOf(i)).child("1").getValue().toString();
@@ -110,20 +110,21 @@ public class Statistics extends AppCompatActivity implements
                                 Double.parseDouble(lon));
                         markop.position(loc);
                         markop.title(timestamp+"("+spe+"m/s)");
-                        mmap.addMarker(markop);
+                        mmap.addMarker(markop); //add marker in map
 
                         locnum++;
                         avg_spd += Double.parseDouble(spe);
                     }
                     runnum++;
                     String[] times = postSnapshot.getKey().split("-");
-                    avg_time += Integer.parseInt(times[1]) - Integer.parseInt(times[0]);
+                    avg_time += Integer.parseInt(times[1]) - Integer.parseInt(times[0]); //finish timestamp minus start timestamp
                 }
                 if (runnum !=0)
                 {
                     avg_spd = Math.round(avg_spd*100/locnum)/100.0;
                     avg_time = Math.round(avg_time/runnum/60);
 
+                    //update statistic labels
                     speedlabel.setText(speedlabel.getText()+" "+avg_spd);
                     timelabel.setText(timelabel.getText()+" "+avg_time);
                 }
@@ -148,41 +149,7 @@ public class Statistics extends AppCompatActivity implements
                 mapv.setVisibility(View.VISIBLE);
                 speedlabel.setVisibility(View.INVISIBLE);
                 timelabel.setVisibility(View.INVISIBLE);
-                mmap.clear();
-                dbref.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        DataSnapshot lastchild = dataSnapshot;
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
-                        {
-                            for(int i = 0; i< postSnapshot.getChildrenCount(); i++)
-                            {
-                                String lat = postSnapshot.child(String.valueOf(i)).child("0").getValue().toString();
-                                String lon = postSnapshot.child(String.valueOf(i)).child("1").getValue().toString();
-                                String spe = postSnapshot.child(String.valueOf(i)).child("2").getValue().toString();
-                                String tim = postSnapshot.child(String.valueOf(i)).child("3").getValue().toString();
-
-                                Timestamp timestamp = new Timestamp(Long.parseLong(tim)*1000);
-
-                                LatLng loc = new LatLng(Double.parseDouble(lat),
-                                        Double.parseDouble(lon));
-                                markop.position(loc);
-                                markop.title(timestamp+"("+spe+"m/s)");
-                                mmap.addMarker(markop);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        // Handle possible errors.
-                    }
-                });
-                break;
         }
-
-
     }
 
     @Override
@@ -194,6 +161,7 @@ public class Statistics extends AppCompatActivity implements
     public void onMapReady(GoogleMap googleMap)
     {
         mmap = googleMap;
+        //check if we have permissions, if not we ask them
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED)
         {
