@@ -187,15 +187,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         t2s = new Text2Speech(this); //class for using TextToSpeech
 
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE); //info about location
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, req); //case of denying accessing location
-        }
-        else{
-            if (connected() && locationManager.isProviderEnabled( LocationManager.GPS_PROVIDER )) { //check for internet connection and gps enabled
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, this); //get location updates
-                start = true; //retrieve weather conditions on activity start
-            }else { showMessage(R.string.error_title, R.string.message_error_2);}
-        }
+        getWeatherForecast();
 
         //Get an instance of the senso dbref.childr service, and use that to get an instance of light sensor
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -268,6 +260,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         db.execSQL("DELETE FROM Locations;");
+    }
+
+    public void getWeatherForecast()
+    {
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, req); //case of denying accessing location
+        }
+        else{
+            if (connected() && locationManager.isProviderEnabled( LocationManager.GPS_PROVIDER )) { //check for internet connection and gps enabled
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, this); //get location updates
+                start = true; //retrieve weather conditions on activity start
+            }else { showMessage(R.string.error_title, R.string.message_error_2);}
+        }
     }
 
     @Override
@@ -491,8 +496,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if ((grantResults[0] == PackageManager.PERMISSION_GRANTED) && (requestCode == REQ)) {
+        if ((grantResults[0] == PackageManager.PERMISSION_GRANTED) && (requestCode == REQ))
+        {
             startRunning(); //recall if accepted
+        }
+        else if ((grantResults[0] == PackageManager.PERMISSION_GRANTED) && (requestCode == req))
+        {
+            getWeatherForecast();
         }
     }
 
