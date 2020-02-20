@@ -337,10 +337,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public void onClick(DialogInterface dialog, int which) {
                             if (results.get(0).toUpperCase().contains("START") && running == false)
                             {
-                                db.execSQL("INSERT INTO Locations VALUES " +
-                                        "('start','start','0','"+(System.currentTimeMillis()/1000) +"');");
-                                voiceb.setBackgroundResource(R.drawable.ic_action_name);
-                                startRunning();
+                                if (start)
+                                {
+                                    Toast.makeText(MainActivity.this, R.string.wait_for_gps, Toast.LENGTH_LONG).show();
+                                }
+                                else
+                                {
+                                    db.execSQL("INSERT INTO Locations VALUES " +
+                                            "('start','start','0','"+(System.currentTimeMillis()/1000) +"');");
+                                    voiceb.setBackgroundResource(R.drawable.ic_action_name);
+                                    startRunning();
+                                }
                             }
                             else if (results.get(0).toUpperCase().contains("STOP") && running == true)
                             {
