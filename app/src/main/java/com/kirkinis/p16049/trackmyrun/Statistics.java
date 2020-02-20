@@ -42,8 +42,6 @@ public class Statistics extends AppCompatActivity implements AdapterView.OnItemS
                 break;
             case 1:
                 break;
-            case 2:
-                break;
         }
     }
 

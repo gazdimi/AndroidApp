@@ -17,8 +17,7 @@
     <string name="dialog_message">Are you sure, you want to %1$s?</string>
     <string name="wait_for_gps">Παρακαλώ περιμέντε να σας εντοπίσει το GPS</string>
     <string-array name="spinner_options">
-        <item>Εβδομαδιαία πρόοδος</item>
-        <item>Ποσοστό εξέλιξης</item>
+        <item>Στατιστικά</item>
         <item>Πολυσύχναστα σημεία τοποθεσίας</item>
     </string-array>
 </resources>
