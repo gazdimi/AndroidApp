@@ -10,4 +10,6 @@
     <string name="message_error">Sorry for the inconvenience, please try again later.</string>
     <string name="message_error_2">Make sure internet connection and GPS tracking system are available and restart the application.</string>
     <string name="statistics">Statistics</string>
+    <string name="error_icon">Error loading weather icon</string>
+    <string name="toast">Please try again later</string>
 </resources>

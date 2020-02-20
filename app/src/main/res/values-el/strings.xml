@@ -4,7 +4,12 @@
     <string name="select_song" >Επιλογή τραγουδιού</string>
     <string name="temperature">Θερμοκρασία</string>
     <string name="title">Τίτλος</string>
+    <string name="recognizer">Έναρξη / Λήξη</string>
     <string name="title_activity_maps">Χάρτης</string>
-    <string name="voice_command">Φωνητική εντολή</string>
     <string name="statistics">Στατιστικά</string>
+    <string name="error_title">Σφάλμα κατά την φόρτωση του καιρού</string>
+    <string name="message_error">Λυπούμαστε για την ταλαιπωρία, δοκιμάστε ξανά αργότερα.</string>
+    <string name="message_error_2">Βεβαιωθείτε ότι η σύνδεση στο διαδίκτυο και το σύστημα παρακολούθησης GPS είναι διαθέσιμα και προχωρήστε σε επανεκκίνηση της εφαρμογής.</string>
+    <string name="error_icon">Σφάλμα κατά τη φόρτωση εικονιδίου καιρού</string>
+    <string name="toast">Παρακαλώ προσπαθήστε ξανά αργότερα</string>
 </resources>

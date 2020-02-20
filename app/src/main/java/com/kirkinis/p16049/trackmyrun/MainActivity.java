@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 {
 
     MediaPlayer mp;
-
+    Network network;
     SeekBar duration;
     Button voiceb, musicb, selectsong;
     Text2Speech t2s;
@@ -371,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(MainActivity.this, "Error loading icon", Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this, R.string.error_icon, Toast.LENGTH_LONG).show();
                             }
                         });
                 requestQueue.add(imageRequest);
@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     t2s.speak("The temperature is too cold to go running today");
                 }else { t2s.speak("Start your running workout");}
                 } catch (Exception e) {
-                    Toast.makeText(this,"Please try again later", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,R.string.toast, Toast.LENGTH_LONG).show();
                 }
             locationManager.removeUpdates(this);
             start = false;
@@ -433,7 +433,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public boolean connected(){ //check for internet connection
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        Network network = connectivityManager.getActiveNetwork();
+        if(connectivityManager!=null){
+            network = connectivityManager.getActiveNetwork();
+        }
         return (network != null);
     }
 }
