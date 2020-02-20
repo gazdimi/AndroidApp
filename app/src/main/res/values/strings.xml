@@ -12,4 +12,7 @@
     <string name="statistics">Statistics</string>
     <string name="error_icon">Error loading weather icon</string>
     <string name="toast">Please try again later</string>
+    <string name="error_toast">Error voice input</string>
+    <string name="dialog_title">%1$s running\n</string>
+    <string name="dialog_message">Are you sure, you want to %1$s?</string>
 </resources>
