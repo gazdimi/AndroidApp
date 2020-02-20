@@ -12,6 +12,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -148,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         dbref = fbdb.getReference(userid);
-        dbref.setValue("hello");
+        //dbref.setValue("create");
 //        dbref.addListenerForSingleValueEvent(new ValueEventListener()
 //        {
 //        @Override
@@ -196,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }else { showMessage(R.string.error_title, R.string.message_error_2);}
         }
 
-        //Get an instance of the sensor service, and use that to get an instance of light sensor
+        //Get an instance of the senso dbref.childr service, and use that to get an instance of light sensor
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         sensorManager.registerListener(this,light,SensorManager.SENSOR_DELAY_NORMAL);
@@ -204,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         db = openOrCreateDatabase("Running",MODE_PRIVATE,null); //open or create db file
         db.execSQL("CREATE TABLE IF NOT EXISTS Locations(latitude TEXT, longitude TEXT, speed TEXT, timestamp TEXT);"); //create table if not exists
 
+        updateFirebase();
     }
 
     public void startRunning()
@@ -225,6 +227,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         locationManager.removeUpdates(this);
         running = false;
         voiceb.setBackgroundResource(R.drawable.ic_action_standing);
+        updateFirebase();
+    }
+
+    public void updateFirebase()
+    {
+        Cursor cursorstart = db.rawQuery("SELECT timestamp FROM Locations " +
+                "WHERE latitude == 'start' " +
+                "ORDER BY timestamp;",null);
+
+
+        Cursor cursorstop = db.rawQuery("SELECT timestamp FROM Locations " +
+                "WHERE latitude == 'stop' " +
+                "ORDER BY timestamp;",null);
+
+
+        while (cursorstart.moveToNext() && cursorstop.moveToNext())
+        {
+            String starttime = cursorstart.getString(0);
+            String stoptime = cursorstop.getString(0);
+
+            Cursor cursor = db.rawQuery("SELECT * FROM Locations " +
+                    "WHERE timestamp > '"+starttime+"' AND timestamp < '"+stoptime+"'", null);
+
+            DatabaseReference tempdbref = dbref.child(starttime+"-"+stoptime);
+
+            ArrayList<ArrayList<String>> data = new ArrayList<>();
+            while (cursor.moveToNext())
+            {
+                ArrayList<String> s = new ArrayList<>();
+                s.add(cursor.getString(0));
+                s.add(cursor.getString(1));
+                s.add(cursor.getString(2));
+                data.add(s);
+            }
+
+            tempdbref.setValue(data);
+            dbref.getParent();
+
+        }
+
+        db.execSQL("DELETE FROM Locations;");
     }
 
     @Override
@@ -382,7 +425,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onLocationChanged(Location location)
     {
-        double tempspeed  = location.getSpeed()*3.6; //convert to km/h
+        double tempspeed  = location.getSpeed();
         float speed = (float)Math.round(tempspeed * 100) /100;
 
         Long ts = System.currentTimeMillis()/1000; //create timestamp
