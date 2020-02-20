@@ -20,5 +20,7 @@
         <item>Most visited locations</item>
     </string-array>
     <string name="wait_for_gps">Please wait for the GPS to track you</string>
+    <string name="avg_speed">Average running speed (in meters/second):</string>
+    <string name="avg_time">Average running time (in minutes):</string>
 
 </resources>

@@ -20,4 +20,6 @@
         <item>Στατιστικά</item>
         <item>Πολυσύχναστα σημεία τοποθεσίας</item>
     </string-array>
+    <string name="avg_speed">Μέση ταχύτητα τρεξίματος (σε μέτρα/δευτερόλεπτο):</string>
+    <string name="avg_time">Μέσος χρόνος τρεξίματος (σε λεπτά):</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.kirkinis.p16049.trackmyrun;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -13,6 +14,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -36,6 +38,8 @@ public class Statistics extends AppCompatActivity implements
     FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     DatabaseReference dbref;
 
+    TextView speedlabel, timelabel;
+
     MarkerOptions markop = new MarkerOptions();
     MapView mapv;
     GoogleMap mmap;
@@ -49,6 +53,10 @@ public class Statistics extends AppCompatActivity implements
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         userid = preferences.getString("userid", "0");
         dbref = fbdb.getReference(userid);
+
+        speedlabel = findViewById(R.id.avg_speed_label);
+        timelabel = findViewById(R.id.avg_time_label);
+
 
         Spinner spinner = findViewById(R.id.spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
@@ -71,7 +79,61 @@ public class Statistics extends AppCompatActivity implements
 
 
         mapv.bringToFront();
-        mapv.setVisibility(View.VISIBLE);
+        mapv.setVisibility(View.INVISIBLE);
+
+        getDataFromDatabase();
+    }
+
+    public void getDataFromDatabase()
+    {
+        dbref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                double avg_spd = 0;
+                double avg_time = 0;
+                int locnum = 0;
+                int runnum = 0;
+                DataSnapshot lastchild = dataSnapshot;
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
+                {
+                    for(int i = 0; i< postSnapshot.getChildrenCount(); i++)
+                    {
+                        String lat = postSnapshot.child(String.valueOf(i)).child("0").getValue().toString();
+                        String lon = postSnapshot.child(String.valueOf(i)).child("1").getValue().toString();
+                        String spe = postSnapshot.child(String.valueOf(i)).child("2").getValue().toString();
+                        String tim = postSnapshot.child(String.valueOf(i)).child("3").getValue().toString();
+
+                        Timestamp timestamp = new Timestamp(Long.parseLong(tim)*1000);
+
+                        LatLng loc = new LatLng(Double.parseDouble(lat),
+                                Double.parseDouble(lon));
+                        markop.position(loc);
+                        markop.title(timestamp+"("+spe+"m/s)");
+                        mmap.addMarker(markop);
+
+                        locnum++;
+                        avg_spd += Double.parseDouble(spe);
+                    }
+                    runnum++;
+                    String[] times = postSnapshot.getKey().split("-");
+                    avg_time += Integer.parseInt(times[1]) - Integer.parseInt(times[0]);
+                }
+                if (runnum !=0)
+                {
+                    avg_spd = Math.round(avg_spd*100/locnum)/100.0;
+                    avg_time = Math.round(avg_time/runnum/60);
+
+                    speedlabel.setText(speedlabel.getText()+" "+avg_spd);
+                    timelabel.setText(timelabel.getText()+" "+avg_time);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle possible errors.
+            }
+        });
     }
 
     @Override
@@ -79,9 +141,13 @@ public class Statistics extends AppCompatActivity implements
         switch (pos){
             case 0:
                 mapv.setVisibility(View.INVISIBLE);
+                speedlabel.setVisibility(View.VISIBLE);
+                timelabel.setVisibility(View.VISIBLE);
                 break;
             case 1:
                 mapv.setVisibility(View.VISIBLE);
+                speedlabel.setVisibility(View.INVISIBLE);
+                timelabel.setVisibility(View.INVISIBLE);
                 mmap.clear();
                 dbref.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -128,14 +194,24 @@ public class Statistics extends AppCompatActivity implements
     public void onMapReady(GoogleMap googleMap)
     {
         mmap = googleMap;
-        //elegxoume ta permissions
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED)
-        { // an den iparxoun ta zitame
+        {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, req);
         }
         else
-        { // energopoioume tin topothesia
+        {
+            mmap.setMyLocationEnabled(true);
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if ((grantResults[0] == PackageManager.PERMISSION_GRANTED) && (requestCode == req))
+        {
             mmap.setMyLocationEnabled(true);
         }
     }
