@@ -153,27 +153,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         dbref = fbdb.getReference(userid);
-        //dbref.setValue("create");
-//        dbref.addListenerForSingleValueEvent(new ValueEventListener()
-//        {
-//        @Override
-//        public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-//        {
-//            if (dataSnapshot.hasChild(userid))
-//            {
-//                dbref = fbdb.getReference(userid);
-//            }
-//            else
-//            {
-//                dbref =
-//            }
-//        }
-//
-//        @Override
-//        public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//        }
-//    });
 
         selectsong = findViewById(R.id.selectsong);
         songtitle = findViewById(R.id.songTitle);
