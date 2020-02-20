@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="231dp"
         android:text="@string/temperature"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.36"
@@ -38,6 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="148dp"
+        android:textSize="16sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/weather"
         app:layout_constraintStart_toEndOf="@+id/weather" />
 
@@ -45,8 +47,9 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="9dp"
+        android:layout_marginEnd="32dp"
         android:text="@string/light"
+        android:textSize="16sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/light"
         app:layout_constraintEnd_toStartOf="@+id/light" />
 

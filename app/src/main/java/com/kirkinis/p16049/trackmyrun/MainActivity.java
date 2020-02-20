@@ -525,10 +525,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void color(String temperature){
         double temp = Double.parseDouble(temperature);
-        if(temp < 0.0){ background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_zero,null));
-        }else if (temp < 11.0){ background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_eleven,null));
-        }else if (temp < 36.0){ background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_thirty_six,null));
-        }else { background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.hot,null));}
+        if(temp < 0.0){ background.setBackgroundResource(R.drawable.gradient_under_zero); // background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_zero,null)
+        }else if (temp < 11.0){ background.setBackgroundResource(R.drawable.gradient_under_eleven);//background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_eleven,null));
+        }else if (temp < 36.0){ background.setBackgroundResource(R.drawable.gradient_under_thirty_six);
+        }else { background.setBackgroundResource(R.drawable.gradient_hot);}
 
     }
     public boolean connected(){ //check for internet connection
