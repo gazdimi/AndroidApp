@@ -23,14 +23,15 @@
     <Button
         android:id="@+id/voicecom"
         android:layout_width="121dp"
-        android:layout_height="97dp"
-        android:layout_marginTop="202dp"
-        android:layout_marginBottom="256dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="193dp"
+        android:layout_marginBottom="159dp"
         android:background="@drawable/ic_action_standing"
-        app:layout_constraintBottom_toTopOf="@+id/musicbut"
+        app:layout_constraintBottom_toTopOf="@+id/songduration"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_optimizationLevel="groups" />
 
     <TextView
         android:id="@+id/light"
@@ -67,22 +68,23 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="22dp"
+        app:layout_constraintBottom_toTopOf="@+id/musicbut"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.50"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/voicecom" />
 
     <Button
         android:id="@+id/musicbut"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="26dp"
+        android:layout_marginBottom="66dp"
         android:background="@drawable/music_play_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/voicecom" />
+        app:layout_constraintTop_toBottomOf="@+id/songduration" />
 
     <TextView
         android:id="@+id/songTitle"

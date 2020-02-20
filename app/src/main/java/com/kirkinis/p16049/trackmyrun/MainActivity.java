@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import android.Manifest;
 import android.content.Context;
@@ -444,10 +445,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void color(String temperature){
         double temp = Double.parseDouble(temperature);
-        if(temp < 0.0){ background.setBackgroundColor(Color.parseColor("#f9fdfe"));
-        }else if (temp < 11.0){ background.setBackgroundColor(Color.parseColor("#1a5ac0"));
-        }else if (temp < 36.0){ background.setBackgroundColor(Color.parseColor("#edcc08"));
-        }else { background.setBackgroundColor(Color.parseColor("#ed2608"));}
+        if(temp < 0.0){ background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_zero,null));
+        }else if (temp < 11.0){ background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_eleven,null));
+        }else if (temp < 36.0){ background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_thirty_six,null));
+        }else { background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.hot,null));}
 
     }
     public boolean connected(){ //check for internet connection
