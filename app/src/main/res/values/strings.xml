@@ -15,4 +15,9 @@
     <string name="error_toast">Error voice input</string>
     <string name="dialog_title">%1$s running\n</string>
     <string name="dialog_message">Are you sure, you want to %1$s?</string>
+    <string-array name="spinner_options">
+        <item>Weekly progress</item>
+        <item>Progress rate</item>
+        <item>Most visited locations</item>
+    </string-array>
 </resources>
