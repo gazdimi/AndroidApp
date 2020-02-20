@@ -234,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 s.add(cursor.getString(0));
                 s.add(cursor.getString(1));
                 s.add(cursor.getString(2));
+                s.add(cursor.getString(3));
                 data.add(s);
             }
 
