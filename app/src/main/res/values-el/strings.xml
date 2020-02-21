@@ -22,4 +22,5 @@
     </string-array>
     <string name="avg_speed">Μέση ταχύτητα τρεξίματος (σε μέτρα/δευτερόλεπτο):</string>
     <string name="avg_time">Μέσος χρόνος τρεξίματος (σε λεπτά):</string>
+    <string name="no_song">Δεν έχει επιλεχθεί τραγούδι</string>
 </resources>

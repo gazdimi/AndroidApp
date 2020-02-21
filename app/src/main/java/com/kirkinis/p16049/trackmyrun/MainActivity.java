@@ -299,15 +299,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivityForResult(Intent.createChooser(intent,"audio file"), READ_REQUEST_CODE);
                 break;
             case R.id.musicbut:
-                if (!mp.isPlaying())
+                if (mp != null)
                 {
-                    mp.start();
-                    v.setBackgroundResource(R.drawable.music_pause_button);
+                    if (!mp.isPlaying())
+                    {
+                        mp.start();
+                        v.setBackgroundResource(R.drawable.music_pause_button);
+                    }
+                    else
+                    {
+                        mp.pause();
+                        v.setBackgroundResource(R.drawable.music_play_button);
+                    }
                 }
                 else
                 {
-                    mp.pause();
-                    v.setBackgroundResource(R.drawable.music_play_button);
+                    Toast.makeText(this,R.string.no_song,Toast.LENGTH_LONG).show();
                 }
                 break;
         }
