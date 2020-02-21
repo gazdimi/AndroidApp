@@ -11,20 +11,21 @@
         android:id="@+id/weather"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="231dp"
+        android:layout_marginEnd="220dp"
         android:text="@string/temperature"
-        android:textSize="16sp"
+        android:textColor="@color/back"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.36"
         app:layout_constraintStart_toEndOf="@+id/sth"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.104" />
+        app:layout_constraintVertical_bias="0.103" />
 
     <Button
         android:id="@+id/voicecom"
-        android:layout_width="121dp"
-        android:layout_height="0dp"
+        android:layout_width="104dp"
+        android:layout_height="87dp"
         android:layout_marginTop="193dp"
         android:layout_marginBottom="159dp"
         android:background="@drawable/ic_action_standing"
@@ -38,8 +39,9 @@
         android:id="@+id/light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="148dp"
-        android:textSize="16sp"
+        android:layout_marginStart="140dp"
+        android:textColor="@color/back"
+        android:textSize="20sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/weather"
         app:layout_constraintStart_toEndOf="@+id/weather" />
 
@@ -47,19 +49,20 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="20dp"
         android:text="@string/light"
+        android:textColor="@color/back"
         android:textSize="16sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/light"
         app:layout_constraintEnd_toStartOf="@+id/light" />
 
     <ImageView
         android:id="@+id/sth"
-        android:layout_width="0dp"
-        android:layout_height="52dp"
+        android:layout_width="53dp"
+        android:layout_height="53dp"
         android:layout_marginStart="21dp"
         android:layout_marginTop="41dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="5dp"
         android:contentDescription="@android:string/fingerprint_icon_content_description"
         app:layout_constraintEnd_toStartOf="@+id/weather"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,7 +90,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/songduration" />
+        app:layout_constraintTop_toBottomOf="@+id/songduration"/>
 
     <TextView
         android:id="@+id/songTitle"
@@ -95,12 +98,14 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="35dp"
         android:text="@string/title"
+        android:textColor="@color/back"
         app:layout_constraintBottom_toTopOf="@+id/songduration"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/selectsong"
+        style="@style/button_option"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"

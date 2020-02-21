@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MediaPlayer mp;
     Network network;
     SeekBar duration;
-    TextView weather, li, songtitle;
+    TextView weather, li, songtitle, textView2;
     Button voiceb, musicb, selectsong;
     Text2Speech t2s;
     LocationManager locationManager; //reference to the system Location Manager
@@ -148,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         musicb = findViewById(R.id.musicbut);
         voiceb = findViewById(R.id.voicecom);
         weather = findViewById(R.id.weather);
+        textView2 = findViewById(R.id.textView2);
         li = findViewById(R.id.light);
         background = findViewById(R.id.background);
         img = findViewById(R.id.sth);
@@ -525,8 +526,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void color(String temperature){
         double temp = Double.parseDouble(temperature);
-        if(temp < 0.0){ background.setBackgroundResource(R.drawable.gradient_under_zero); // background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_zero,null)
-        }else if (temp < 11.0){ background.setBackgroundResource(R.drawable.gradient_under_eleven);//background.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.under_eleven,null));
+        if(temp < 0.0){
+            background.setBackgroundResource(R.drawable.gradient_under_zero);
+            weather.setTextColor(ResourcesCompat.getColor(getResources(),R.color.colorPrimaryDark,null));
+            li.setTextColor(ResourcesCompat.getColor(getResources(),R.color.colorPrimaryDark,null));
+            songtitle.setTextColor(ResourcesCompat.getColor(getResources(),R.color.colorPrimaryDark,null));
+            textView2.setTextColor(ResourcesCompat.getColor(getResources(),R.color.colorPrimaryDark,null));
+        }else if (temp < 11.0){ background.setBackgroundResource(R.drawable.gradient_under_eleven);
         }else if (temp < 36.0){ background.setBackgroundResource(R.drawable.gradient_under_thirty_six);
         }else { background.setBackgroundResource(R.drawable.gradient_hot);}
 

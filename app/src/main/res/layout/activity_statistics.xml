@@ -33,6 +33,7 @@
         android:layout_marginTop="88dp"
         android:layout_marginBottom="80dp"
         android:text="@string/avg_speed"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/avg_time_label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/mapView" />
@@ -44,6 +45,7 @@
         android:layout_marginStart="17dp"
         android:layout_marginTop="218dp"
         android:text="@string/avg_time"
+        android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
